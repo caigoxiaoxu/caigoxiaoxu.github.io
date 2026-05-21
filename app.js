@@ -401,7 +401,7 @@ class NavManager {
 
         const categoryName = document.createElement('span');
         categoryName.className = 'category-name';
-        categoryName.textContent = category;
+        categoryName.textContent = this.getCategoryDisplayName(category);
 
         const categoryCount = document.createElement('span');
         categoryCount.className = 'category-count';
@@ -436,7 +436,7 @@ class NavManager {
         noteItem.dataset.root = note.note_root;
         noteItem.dataset.slug = note.slug;
         noteItem.dataset.category = category;
-        noteItem.dataset.search = `${category} ${note.title} ${note.slug}`.toLowerCase();
+        noteItem.dataset.search = `${this.getCategoryDisplayName(category)} ${note.title} ${note.slug}`.toLowerCase();
 
         const noteIcon = document.createElement('div');
         noteIcon.className = 'note-icon';
@@ -448,6 +448,18 @@ class NavManager {
         noteItem.appendChild(noteIcon);
         noteItem.appendChild(noteName);
         return noteItem;
+    }
+
+    getCategoryDisplayName(category) {
+        if (category === 'group') {
+            return 'mazesec记录';
+        }
+
+        if (category.includes('mazesec')) {
+            return 'mazesec记录';
+        }
+
+        return category;
     }
 
     bindEvents() {

@@ -24,7 +24,7 @@ lastmod: 2026-05-08T00:00:00+08:00
 
 <section class="home-contact">
 <span class="home-contact-item"><strong>作者</strong>Ahiz2</span>
-<span class="home-contact-item"><strong>方向</strong>CTF / Pwn / 二进制安全</span>
+<span class="home-contact-item"><strong>方向</strong>CTF / 渗透测试</span>
 <span class="home-contact-item"><strong>签名</strong>奶龙是龙，龙趴着休息很正常</span>
 <span class="home-contact-item"><strong>昵称</strong>Ahiz2</span>
 <a class="home-contact-item" href="https://github.com/caigoxiaoxu">GitHub</a>
@@ -41,7 +41,7 @@ lastmod: 2026-05-08T00:00:00+08:00
 </nav>
 <div class="home-footer-meta">
 <span>© 2026 Ahiz2</span>
-<span>CTF / Pwn / 二进制安全</span>
+<span>CTF / 渗透测试</span>
 </div>
 </footer>
 </div>
