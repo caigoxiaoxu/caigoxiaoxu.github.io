@@ -1,4 +1,4 @@
-# imLZH1's Blog
+# Ahiz2's Blog
 
 一个轻量的静态 Markdown 技术博客，主要用于记录 CTF、Pwn、二进制安全、渗透测试和日常折腾笔记。
 
@@ -89,10 +89,23 @@ http://127.0.0.1:8000/#/overview
 
 ## 部署到 GitHub Pages
 
-1. 运行 `python main.py`
-2. 提交更新后的文章、`nav.json` 和 `_posts/LEA/Timeline.md`
-3. 推送到 GitHub
-4. 在仓库 `Settings -> Pages` 中选择部署分支和根目录
+推荐使用 GitHub Actions 自动部署：
+
+1. 新建 GitHub 仓库，个人主页建议使用 `caigoxiaoxu.github.io`
+2. 把当前项目推送到仓库的 `main` 分支
+3. 仓库中已经包含 `.github/workflows/deploy-pages.yml`
+4. 在 GitHub 打开 `Settings -> Pages`
+5. `Source` 选择 `GitHub Actions`
+6. 推送后等待 `Actions` 里的 `Deploy GitHub Pages` 工作流完成
+
+以后更新文章时只需要：
+
+```bash
+python main.py
+git add .
+git commit -m "update blog"
+git push
+```
 
 仓库里包含 `.nojekyll`，GitHub Pages 会按普通静态文件托管，不走 Jekyll 构建。
 

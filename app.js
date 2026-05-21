@@ -603,7 +603,7 @@ class NavManager {
         const noteKicker = document.getElementById('content-kicker');
 
         noteTitle.textContent = entry.title;
-        document.title = `${entry.title} | imLZH1's Blog`;
+        document.title = `${entry.title} | Ahiz2's Blog`;
         document.querySelector('.app-container')?.classList.toggle(
             'home-layout',
             entry.type === 'page' && entry.slug === 'overview',

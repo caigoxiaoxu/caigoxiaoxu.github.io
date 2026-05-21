@@ -10,165 +10,66 @@
             "title": "Timeline",
             "note_root": "./_posts/LEA/",
             "note_src": "./_posts/LEA/Timeline.md",
-            "date": "2026-05-09T00:28:40+08:00"
+            "date": "2026-05-21T21:40:28+08:00"
         }
     ],
     "notes": {
-        "2025-writeups": [
+        "group": [
             {
-                "title": "2025-11-08-Infobahn-CTF-2025",
-                "slug": "2025-11-08-Infobahn-CTF-2025",
-                "note_root": "./_posts/2025-writeups/2025-11-08-Infobahn-CTF-2025/",
-                "note_src": "./_posts/2025-writeups/2025-11-08-Infobahn-CTF-2025/2025-11-08-Infobahn-CTF-2025.md",
-                "date": "2025-11-08T00:00:00"
+                "title": "BlindSpot-Ahiz",
+                "slug": "BlindSpot-Ahiz",
+                "note_root": "./_posts/group/BlindSpot-Ahiz/",
+                "note_src": "./_posts/group/BlindSpot-Ahiz/BlindSpot-Ahiz.md",
+                "date": "2026-05-18T20:25:11+08:00"
             },
             {
-                "title": "2025-10-12-羊城杯pwn-writeups",
-                "slug": "2025-10-12-羊城杯pwn-writeups",
-                "note_root": "./_posts/2025-writeups/2025-10-12-羊城杯pwn-writeups/",
-                "note_src": "./_posts/2025-writeups/2025-10-12-羊城杯pwn-writeups/2025-10-12-羊城杯pwn-writeups.md",
-                "date": "2025-10-12T00:00:00"
+                "title": "ecbw-Ahiz",
+                "slug": "ecbw-Ahiz",
+                "note_root": "./_posts/group/ecbw-Ahiz/",
+                "note_src": "./_posts/group/ecbw-Ahiz/ecbw-Ahiz.md",
+                "date": "2026-05-18T13:43:54+08:00"
             },
             {
-                "title": "2025-04-28-第二届长城杯总决赛-Pwn解题思路",
-                "slug": "2025-04-28-第二届长城杯总决赛-Pwn解题思路",
-                "note_root": "./_posts/2025-writeups/2025-04-28-第二届长城杯总决赛-Pwn解题思路/",
-                "note_src": "./_posts/2025-writeups/2025-04-28-第二届长城杯总决赛-Pwn解题思路/2025-04-28-第二届长城杯总决赛-Pwn解题思路.md",
-                "date": "2025-04-28T00:00:00"
+                "title": "meltdown2",
+                "slug": "meltdown2",
+                "note_root": "./_posts/group/meltdown2/",
+                "note_src": "./_posts/group/meltdown2/meltdown2.md",
+                "date": "2026-05-17T10:48:35+08:00"
             },
             {
-                "title": "2025-03-26-Cyber-Apocalypse-CTF-2025_Tales-from-Eldoria",
-                "slug": "2025-03-26-Cyber-Apocalypse-CTF-2025_Tales-from-Eldoria",
-                "note_root": "./_posts/2025-writeups/2025-03-26-Cyber-Apocalypse-CTF-2025_Tales-from-Eldoria/",
-                "note_src": "./_posts/2025-writeups/2025-03-26-Cyber-Apocalypse-CTF-2025_Tales-from-Eldoria/2025-03-26-Cyber-Apocalypse-CTF-2025_Tales-from-Eldoria.md",
-                "date": "2025-03-26T00:00:00"
+                "title": "Local",
+                "slug": "Local",
+                "note_root": "./_posts/group/Local/",
+                "note_src": "./_posts/group/Local/Local.md",
+                "date": "2026-05-14T15:18:53+08:00"
             },
             {
-                "title": "2025-02-09-LA_CTF-部分Pwn解题思路",
-                "slug": "2025-02-09-LA_CTF-部分Pwn解题思路",
-                "note_root": "./_posts/2025-writeups/2025-02-09-LA_CTF-部分Pwn解题思路/",
-                "note_src": "./_posts/2025-writeups/2025-02-09-LA_CTF-部分Pwn解题思路/2025-02-09-LA_CTF-部分Pwn解题思路.md",
-                "date": "2025-02-09T00:00:00"
+                "title": "Acfun",
+                "slug": "Acfun",
+                "note_root": "./_posts/group/Acfun/",
+                "note_src": "./_posts/group/Acfun/Acfun.md",
+                "date": "2026-04-27T13:50:57+08:00"
             },
             {
-                "title": "2025-02-01-Nullcon-Goa-HackIM-2025-CTF",
-                "slug": "2025-02-01-Nullcon-Goa-HackIM-2025-CTF",
-                "note_root": "./_posts/2025-writeups/2025-02-01-Nullcon-Goa-HackIM-2025-CTF/",
-                "note_src": "./_posts/2025-writeups/2025-02-01-Nullcon-Goa-HackIM-2025-CTF/2025-02-01-Nullcon-Goa-HackIM-2025-CTF.md",
-                "date": "2025-02-01T00:00:00"
+                "title": "Show",
+                "slug": "Show",
+                "note_root": "./_posts/group/Show/",
+                "note_src": "./_posts/group/Show/Show.md",
+                "date": "2026-04-27T13:22:08+08:00"
             },
             {
-                "title": "2025-01-18-第八届西湖论剑初赛-Pwn-解题思路",
-                "slug": "2025-01-18-第八届西湖论剑初赛-Pwn-解题思路",
-                "note_root": "./_posts/2025-writeups/2025-01-18-第八届西湖论剑初赛-Pwn-解题思路/",
-                "note_src": "./_posts/2025-writeups/2025-01-18-第八届西湖论剑初赛-Pwn-解题思路/2025-01-18-第八届西湖论剑初赛-Pwn-解题思路.md",
-                "date": "2025-01-18T00:00:00"
+                "title": "SDL",
+                "slug": "SDL",
+                "note_root": "./_posts/group/SDL/",
+                "note_src": "./_posts/group/SDL/SDL.md",
+                "date": "2026-04-26T17:22:34+08:00"
             },
             {
-                "title": "2025-01-04-IrisCTF2025",
-                "slug": "2025-01-04-IrisCTF2025",
-                "note_root": "./_posts/2025-writeups/2025-01-04-IrisCTF2025/",
-                "note_src": "./_posts/2025-writeups/2025-01-04-IrisCTF2025/2025-01-04-IrisCTF2025.md",
-                "date": "2025-01-04T00:00:00"
-            }
-        ],
-        "2024-writeups": [
-            {
-                "title": "2024-10-05-BRISC-CTF",
-                "slug": "2024-10-05-BRISC-CTF",
-                "note_root": "./_posts/2024-writeups/2024-10-05-BRISC-CTF/",
-                "note_src": "./_posts/2024-writeups/2024-10-05-BRISC-CTF/2024-10-05-BRISC-CTF.md",
-                "date": "2024-10-05T00:00:00"
-            },
-            {
-                "title": "2024-08-18-巅峰极客-pwn",
-                "slug": "2024-08-18-巅峰极客-pwn",
-                "note_root": "./_posts/2024-writeups/2024-08-18-巅峰极客-pwn/",
-                "note_src": "./_posts/2024-writeups/2024-08-18-巅峰极客-pwn/2024-08-18-巅峰极客-pwn.md",
-                "date": "2024-08-18T00:00:00"
-            },
-            {
-                "title": "2024-08-05-TFC-CTF-2024-PWN",
-                "slug": "2024-08-05-TFC-CTF-2024-PWN",
-                "note_root": "./_posts/2024-writeups/2024-08-05-TFC-CTF-2024-PWN/",
-                "note_src": "./_posts/2024-writeups/2024-08-05-TFC-CTF-2024-PWN/2024-08-05-TFC-CTF-2024-PWN.md",
-                "date": "2024-08-05T00:00:00"
-            },
-            {
-                "title": "2024-04-29-D^3CTF-2024",
-                "slug": "2024-04-29-D^3CTF-2024",
-                "note_root": "./_posts/2024-writeups/2024-04-29-D^3CTF-2024/",
-                "note_src": "./_posts/2024-writeups/2024-04-29-D^3CTF-2024/2024-04-29-D^3CTF-2024.md",
-                "date": "2024-04-29T00:00:00"
-            },
-            {
-                "title": "2024-04-06-TAMUctf-2024",
-                "slug": "2024-04-06-TAMUctf-2024",
-                "note_root": "./_posts/2024-writeups/2024-04-06-TAMUctf-2024/",
-                "note_src": "./_posts/2024-writeups/2024-04-06-TAMUctf-2024/2024-04-06-TAMUctf-2024.md",
-                "date": "2024-04-06T00:00:00"
-            },
-            {
-                "title": "2024-02-17-LA-CTF-Pwn-WriteUps",
-                "slug": "2024-02-17-LA-CTF-Pwn-WriteUps",
-                "note_root": "./_posts/2024-writeups/2024-02-17-LA-CTF-Pwn-WriteUps/",
-                "note_src": "./_posts/2024-writeups/2024-02-17-LA-CTF-Pwn-WriteUps/2024-02-17-LA-CTF-Pwn-WriteUps.md",
-                "date": "2024-02-17T00:00:00"
-            },
-            {
-                "title": "2024-羊城杯pwn-writeups",
-                "slug": "2024-羊城杯pwn-writeups",
-                "note_root": "./_posts/2024-writeups/2024-羊城杯pwn-writeups/",
-                "note_src": "./_posts/2024-writeups/2024-羊城杯pwn-writeups/2024-羊城杯pwn-writeups.md",
-                "date": null
-            }
-        ],
-        "2026": [
-            {
-                "title": "2026 ccb决赛部分题目复现",
-                "slug": "2026 ccb决赛部分题目复现",
-                "note_root": "./_posts/2026/2026 ccb决赛部分题目复现/",
-                "note_src": "./_posts/2026/2026 ccb决赛部分题目复现/2026 ccb决赛部分题目复现.md",
-                "date": "2026-04-30T08:53:59+08:00"
-            }
-        ],
-        "gugugaga": [
-            {
-                "title": "无境靶场：州弟学安全-三层综合渗透",
-                "slug": "无境靶场-州弟学安全-三层综合渗透",
-                "note_root": "./_posts/gugugaga/无境靶场-州弟学安全-三层综合渗透/",
-                "note_src": "./_posts/gugugaga/无境靶场-州弟学安全-三层综合渗透/无境靶场-州弟学安全-三层综合渗透.md",
-                "date": "2026-05-05T08:18:11+08:00"
-            },
-            {
-                "title": "Vulnhub-HackthonCTF-2",
-                "slug": "Vulnhub-HackthonCTF-2",
-                "note_root": "./_posts/gugugaga/",
-                "note_src": "./_posts/gugugaga/Vulnhub-HackthonCTF-2.md",
-                "date": null
-            },
-            {
-                "title": "Vulnhub-SecureCode1",
-                "slug": "Vulnhub-SecureCode1",
-                "note_root": "./_posts/gugugaga/",
-                "note_src": "./_posts/gugugaga/Vulnhub-SecureCode1.md",
-                "date": null
-            }
-        ],
-        "pwn_note1": [
-            {
-                "title": "glibc_IO_FILE-利用",
-                "slug": "glibc_IO_FILE-利用",
-                "note_root": "./_posts/pwn_note1/glibc_IO_FILE-利用/",
-                "note_src": "./_posts/pwn_note1/glibc_IO_FILE-利用/glibc_IO_FILE-利用.md",
-                "date": null
-            },
-            {
-                "title": "Kernel-security",
-                "slug": "Kernel-security",
-                "note_root": "./_posts/pwn_note1/Kernel-security/",
-                "note_src": "./_posts/pwn_note1/Kernel-security/pwn.college-Kernel-security.md",
-                "date": null
+                "title": "group",
+                "slug": "group",
+                "note_root": "./_posts/group/group/",
+                "note_src": "./_posts/group/group/group.md",
+                "date": "2026-04-19T15:57:54+08:00"
             }
         ]
     }

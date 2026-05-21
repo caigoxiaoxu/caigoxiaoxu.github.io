@@ -4,7 +4,7 @@ date: 2026-05-08T00:00:00+08:00
 lastmod: 2026-05-08T00:00:00+08:00
 ---
 
-<h1 class="home-page-title">imLZH1</h1>
+<h1 class="home-page-title">Ahiz2</h1>
 
 <div class="home-shell">
 <section class="home-hero">
@@ -23,12 +23,11 @@ lastmod: 2026-05-08T00:00:00+08:00
 </section>
 
 <section class="home-contact">
-<span class="home-contact-item"><strong>Author</strong>imLZH1</span>
+<span class="home-contact-item"><strong>Author</strong>Ahiz2</span>
 <span class="home-contact-item"><strong>Field</strong> CTF / Pwn / Binary Security</span>
 <span class="home-contact-item"><strong>Motto</strong> 奶龙是龙，龙趴着休息很正常</span>
-<span class="home-contact-item"><strong>QQ</strong> 3461665835</span>
-<span class="home-contact-item"><strong>Email</strong> qingwachong[@]qq.com</span>
-<a class="home-contact-item" href="https://github.com/ImLZH1">GitHub</a>
+<span class="home-contact-item"><strong>Handle</strong> Ahiz2</span>
+<a class="home-contact-item" href="https://github.com/caigoxiaoxu">GitHub</a>
 </section>
 
 <footer class="home-footer">
@@ -38,11 +37,10 @@ lastmod: 2026-05-08T00:00:00+08:00
 </div>
 <nav class="home-footer-links" aria-label="Footer links">
 <a href="#/timeline">Timeline</a>
-<a href="#/pwn-tips/glibc_IO_FILE-利用">Pwn Tips</a>
-<a href="https://github.com/ImLZH1">GitHub</a>
+<a href="https://github.com/caigoxiaoxu">GitHub</a>
 </nav>
 <div class="home-footer-meta">
-<span>© 2026 imLZH1</span>
+<span>© 2026 Ahiz2</span>
 <span>CTF / Pwn / Binary Security</span>
 </div>
 </footer>
