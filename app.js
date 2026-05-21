@@ -225,6 +225,7 @@ class ThemeManager {
 // 导航加载和文件管理
 class NavManager {
     constructor() {
+        this.assetVersion = '20260521-2';
         this.navData = { pages: [], notes: {} };
         this.entryMapBySrc = new Map();
         this.pageMap = new Map();
@@ -252,7 +253,7 @@ class NavManager {
 
     async loadNavData() {
         try {
-            const response = await fetch('nav.json');
+            const response = await fetch(`nav.json?v=${this.assetVersion}`, { cache: 'no-cache' });
             const data = await response.json();
             this.navData = this.normalizeNavData(data);
         } catch (error) {
@@ -623,7 +624,11 @@ class NavManager {
 
     async loadEntry(entry, updateURL = false) {
         try {
-            const response = await fetch(entry.note_src);
+            const separator = entry.note_src.includes('?') ? '&' : '?';
+            const response = await fetch(
+                `${entry.note_src}${separator}v=${this.assetVersion}`,
+                { cache: 'no-cache' },
+            );
             if (!response.ok) throw new Error('文件不存在');
 
             const markdownContent = await response.text();
