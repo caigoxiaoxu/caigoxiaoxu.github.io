@@ -229,8 +229,11 @@ class NavManager {
         this.navData = { pages: [], notes: {} };
         this.entryMapBySrc = new Map();
         this.pageMap = new Map();
+        this.entryContentCache = new Map();
         this.currentHeadings = [];
+        this.currentHeadingOffsets = [];
         this.outlineScrollHandler = null;
+        this.outlineScrollTicking = false;
         this.init();
     }
 
@@ -624,16 +627,23 @@ class NavManager {
 
     async loadEntry(entry, updateURL = false) {
         try {
-            const separator = entry.note_src.includes('?') ? '&' : '?';
-            const response = await fetch(
-                `${entry.note_src}${separator}v=${this.assetVersion}`,
-                { cache: 'no-cache' },
-            );
-            if (!response.ok) throw new Error('文件不存在');
+            const cacheKey = `${entry.note_src}::${this.assetVersion}`;
+            let htmlContent = this.entryContentCache.get(cacheKey);
 
-            const markdownContent = await response.text();
+            if (!htmlContent) {
+                const separator = entry.note_src.includes('?') ? '&' : '?';
+                const response = await fetch(
+                    `${entry.note_src}${separator}v=${this.assetVersion}`,
+                    { cache: 'no-cache' },
+                );
+                if (!response.ok) throw new Error('文件不存在');
 
-            this.renderMarkdown(markdownContent, entry);
+                const markdownContent = await response.text();
+                htmlContent = this.parseMarkdownWithMarked(markdownContent, entry.note_root);
+                this.entryContentCache.set(cacheKey, htmlContent);
+            }
+
+            this.renderMarkdown(htmlContent, entry);
 
             // 如果需要更新URL，则更新hash
             if (updateURL) {
@@ -645,7 +655,7 @@ class NavManager {
         }
     }
 
-    renderMarkdown(content, entry) {
+    renderMarkdown(htmlContent, entry) {
         const contentArea = document.querySelector('.markdown-body');
         const noteTitle = document.querySelector('.content-header h1');
         const noteKicker = document.getElementById('content-kicker');
@@ -660,8 +670,6 @@ class NavManager {
             noteKicker.textContent = entry.kicker || '笔记';
         }
 
-        // 使用marked.js解析Markdown，并处理资源路径
-        const htmlContent = this.parseMarkdownWithMarked(content, entry.note_root);
         contentArea.innerHTML = htmlContent;
 
         this.enhanceRenderedContent(contentArea);
@@ -1030,6 +1038,7 @@ class NavManager {
         const outlineContainer = document.querySelector('.outline-container');
         const headings = contentElement.querySelectorAll('h1, h2, h3');
         this.currentHeadings = Array.from(headings);
+        this.currentHeadingOffsets = this.currentHeadings.map((heading) => heading.offsetTop);
         
         if (headings.length === 0) {
             outlineContainer.innerHTML = '<div class="empty-outline">暂无大纲</div>';
@@ -1073,21 +1082,27 @@ class NavManager {
         const contentArea = document.querySelector('.content-area');
         if (!contentArea || this.outlineScrollHandler) return;
 
-        this.outlineScrollHandler = () => this.updateActiveOutline();
+        this.outlineScrollHandler = () => {
+            if (this.outlineScrollTicking) return;
+            this.outlineScrollTicking = true;
+            requestAnimationFrame(() => {
+                this.outlineScrollTicking = false;
+                this.updateActiveOutline();
+            });
+        };
         contentArea.addEventListener('scroll', this.outlineScrollHandler, { passive: true });
     }
 
     updateActiveOutline() {
         const contentArea = document.querySelector('.content-area');
         const outlineItems = document.querySelectorAll('.outline-item');
-        if (!contentArea || !this.currentHeadings.length || outlineItems.length === 0) return;
+        if (!contentArea || !this.currentHeadingOffsets.length || outlineItems.length === 0) return;
 
-        const containerTop = contentArea.getBoundingClientRect().top;
+        const currentScroll = contentArea.scrollTop + 96;
         let activeIndex = 0;
 
-        this.currentHeadings.forEach((heading, index) => {
-            const headingTop = heading.getBoundingClientRect().top - containerTop;
-            if (headingTop <= 90) {
+        this.currentHeadingOffsets.forEach((offsetTop, index) => {
+            if (offsetTop <= currentScroll) {
                 activeIndex = index;
             }
         });
