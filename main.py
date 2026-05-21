@@ -16,11 +16,11 @@ TIMELINE_PATH = LEA_DIR / "Timeline.md"
 PAGE_DEFINITIONS = [
     {
         "filename": "index.md",
-        "title": "Overview",
+        "title": "概览",
     },
     {
         "filename": "Timeline.md",
-        "title": "Timeline",
+        "title": "时间线",
     },
     #{
     #    "filename": "Friends.md",
@@ -191,12 +191,12 @@ def build_timeline_markdown(notes_index: dict[str, list[dict[str, object]]]) -> 
 
     lines = [
         "---",
-        "title: Timeline",
+        "title: 时间线",
         f"date: {now}",
         f"lastmod: {now}",
         "---",
         "",
-        "# Timeline",
+        "# 时间线",
         "",
         '<p class="timeline-page-intro">按时间顺序整理站内文章，方便快速回看近期写了什么、补了什么、记录了什么。</p>',
         "",

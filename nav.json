@@ -1,16 +1,16 @@
 {
     "pages": [
         {
-            "title": "Overview",
+            "title": "概览",
             "note_root": "./_posts/LEA/",
             "note_src": "./_posts/LEA/index.md",
             "date": "2026-05-08T00:00:00+08:00"
         },
         {
-            "title": "Timeline",
+            "title": "时间线",
             "note_root": "./_posts/LEA/",
             "note_src": "./_posts/LEA/Timeline.md",
-            "date": "2026-05-21T21:40:28+08:00"
+            "date": "2026-05-21T21:58:45+08:00"
         }
     ],
     "notes": {

@@ -208,12 +208,12 @@ class ThemeManager {
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         if (darkModeToggle) {
             if (this.isDarkMode) {
-                darkModeToggle.textContent = 'Light';
+                darkModeToggle.textContent = '亮色';
                 darkModeToggle.title = '切换到亮色模式';
                 darkModeToggle.classList.add('active');
                 darkModeToggle.setAttribute('aria-pressed', 'true');
             } else {
-                darkModeToggle.textContent = 'Dark';
+                darkModeToggle.textContent = '暗色';
                 darkModeToggle.title = '切换到暗色模式';
                 darkModeToggle.classList.remove('active');
                 darkModeToggle.setAttribute('aria-pressed', 'false');
@@ -603,13 +603,13 @@ class NavManager {
         const noteKicker = document.getElementById('content-kicker');
 
         noteTitle.textContent = entry.title;
-        document.title = `${entry.title} | Ahiz2's Blog`;
+        document.title = `${entry.title} | Ahiz2 的博客`;
         document.querySelector('.app-container')?.classList.toggle(
             'home-layout',
             entry.type === 'page' && entry.slug === 'overview',
         );
         if (noteKicker) {
-            noteKicker.textContent = entry.kicker || 'Notebook';
+            noteKicker.textContent = entry.kicker || '笔记';
         }
 
         // 使用marked.js解析Markdown，并处理资源路径
