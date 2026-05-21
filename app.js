@@ -263,9 +263,22 @@ class NavManager {
     }
 
     normalizeNavData(data) {
+        const normalizedNotes = {};
+        const rawNotes = data?.notes && typeof data.notes === 'object' ? data.notes : {};
+
+        for (const [category, notes] of Object.entries(rawNotes)) {
+            const routeCategory = this.getCategoryRouteKey(category, Array.isArray(notes) ? notes[0] : null);
+            if (!normalizedNotes[routeCategory]) {
+                normalizedNotes[routeCategory] = [];
+            }
+            if (Array.isArray(notes)) {
+                normalizedNotes[routeCategory].push(...notes);
+            }
+        }
+
         return {
             pages: Array.isArray(data?.pages) ? data.pages : [],
-            notes: data?.notes && typeof data.notes === 'object' ? data.notes : {},
+            notes: normalizedNotes,
         };
     }
 
@@ -288,11 +301,13 @@ class NavManager {
         for (const [category, notes] of Object.entries(this.navData.notes)) {
             this.navData.notes[category] = notes.map((note) => {
                 const slug = note.slug || this.deriveNoteSlug(note.note_src, category);
+                const displayCategory = this.getCategoryDisplayName(category, note);
                 const normalized = {
                     ...note,
                     type: 'note',
                     category,
-                    kicker: category,
+                    kicker: displayCategory,
+                    displayCategory,
                     slug,
                     title: note.title || slug,
                 };
@@ -401,7 +416,7 @@ class NavManager {
 
         const categoryName = document.createElement('span');
         categoryName.className = 'category-name';
-        categoryName.textContent = this.getCategoryDisplayName(category);
+        categoryName.textContent = this.getCategoryDisplayName(category, notes[0]);
 
         const categoryCount = document.createElement('span');
         categoryCount.className = 'category-count';
@@ -436,7 +451,7 @@ class NavManager {
         noteItem.dataset.root = note.note_root;
         noteItem.dataset.slug = note.slug;
         noteItem.dataset.category = category;
-        noteItem.dataset.search = `${this.getCategoryDisplayName(category)} ${note.title} ${note.slug}`.toLowerCase();
+        noteItem.dataset.search = `${this.getCategoryDisplayName(category, note)} ${note.title} ${note.slug}`.toLowerCase();
 
         const noteIcon = document.createElement('div');
         noteIcon.className = 'note-icon';
@@ -450,12 +465,28 @@ class NavManager {
         return noteItem;
     }
 
-    getCategoryDisplayName(category) {
-        if (category === 'group') {
-            return 'mazesec记录';
+    getCategoryRouteKey(category, note = null) {
+        const normalizedCategory = String(category || '').toLowerCase();
+        const noteRoot = String(note?.note_root || '');
+        const noteSrc = String(note?.note_src || '');
+
+        if (
+            normalizedCategory === 'group'
+            || normalizedCategory.includes('mazesec')
+            || normalizedCategory.includes('��')
+            || noteRoot.includes('/mazesec/')
+            || noteSrc.includes('/mazesec/')
+        ) {
+            return 'mazesec';
         }
 
-        if (category.includes('mazesec')) {
+        return category;
+    }
+
+    getCategoryDisplayName(category, note = null) {
+        const routeCategory = this.getCategoryRouteKey(category, note);
+
+        if (routeCategory === 'mazesec') {
             return 'mazesec记录';
         }
 
@@ -629,19 +660,29 @@ class NavManager {
         contentArea.innerHTML = htmlContent;
 
         this.enhanceRenderedContent(contentArea);
-        
-        // 手动触发Prism.js代码高亮
-        this.highlightCodeBlocks(contentArea);
-        
-        // 更新大纲导航
-        this.updateOutline(contentArea);
 
         const scrollContainer = document.querySelector('.content-area');
         if (scrollContainer) {
             scrollContainer.scrollTop = 0;
         }
-        this.scrollToRequestedSection();
-        window.dispatchEvent(new CustomEvent('note-rendered'));
+
+        this.schedulePostRenderTasks(contentArea);
+    }
+
+    schedulePostRenderTasks(contentArea) {
+        const run = () => {
+            this.highlightCodeBlocks(contentArea);
+            this.updateOutline(contentArea);
+            this.scrollToRequestedSection();
+            window.dispatchEvent(new CustomEvent('note-rendered'));
+        };
+
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(() => requestAnimationFrame(run), { timeout: 300 });
+            return;
+        }
+
+        setTimeout(() => requestAnimationFrame(run), 0);
     }
 
     enhanceRenderedContent(container) {
@@ -799,25 +840,30 @@ class NavManager {
         // 手动调用Prism.js高亮所有代码块
         if (typeof Prism !== 'undefined') {
             // 查找所有代码块并手动高亮
-            const codeBlocks = container.querySelectorAll('code[class*="language-"], pre code');
-            codeBlocks.forEach(code => {
-                const parent = code.parentElement;
-                if (parent && parent.nodeName === 'PRE') {
-                    // 确保有正确的类名
-                    if (!parent.classList.contains('language-none')) {
-                        const langMatch = code.className.match(/language-([a-zA-Z0-9_-]+)/);
-                        const lang = langMatch ? langMatch[1] : 'plain';
-                        parent.dataset.lang = lang;
-                        const grammar = Prism.languages[lang] || Prism.languages.plain || Prism.languages.plaintext;
-                        if (grammar) {
-                            code.innerHTML = Prism.highlight(code.textContent, grammar, lang);
+            const codeBlocks = Array.from(container.querySelectorAll('code[class*="language-"], pre code'));
+            const processChunk = (startIndex = 0) => {
+                const chunk = codeBlocks.slice(startIndex, startIndex + 12);
+
+                chunk.forEach(code => {
+                    const parent = code.parentElement;
+                    if (parent && parent.nodeName === 'PRE') {
+                        if (!parent.classList.contains('language-none') && !code.dataset.highlighted) {
+                            const langMatch = code.className.match(/language-([a-zA-Z0-9_-]+)/);
+                            const lang = langMatch ? langMatch[1] : 'plain';
+                            parent.dataset.lang = lang;
+                            Prism.highlightElement(code);
+                            code.dataset.highlighted = 'true';
                         }
+
+                        this.addCopyButton(parent);
                     }
-                    
-                    // 为代码块添加复制按钮
-                    this.addCopyButton(parent);
+                });
+
+                if (startIndex + 12 < codeBlocks.length) {
+                    requestAnimationFrame(() => processChunk(startIndex + 12));
                 }
-            });
+            };
+            processChunk();
         }
     }
 
@@ -902,11 +948,6 @@ class NavManager {
 
             // 配置marked选项
             marked.setOptions({
-                highlight: function(code, lang) {
-                    // 使用Prism.js进行代码高亮
-                    const grammar = Prism.languages[lang] || Prism.languages.plain || Prism.languages.plaintext;
-                    return grammar ? Prism.highlight(code, grammar, lang || 'plain') : code;
-                },
                 breaks: true, // 将\n转换为<br>
                 gfm: true,    // 启用GitHub Flavored Markdown
             });
@@ -1094,6 +1135,12 @@ class NavManager {
             'LEA/Timeline': 'timeline',
             'LEA/Friends': 'friends',
         };
+        if (path.startsWith('group/')) {
+            return path.replace(/^group\//, 'mazesec/');
+        }
+        if (path.startsWith('mazesec记录/')) {
+            return path.replace(/^mazesec记录\//, 'mazesec/');
+        }
         return legacyMap[path] || path;
     }
 

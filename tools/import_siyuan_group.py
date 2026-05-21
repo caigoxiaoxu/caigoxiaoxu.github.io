@@ -15,7 +15,7 @@ from bs4.element import NavigableString, Tag
 
 
 ROOT = Path(__file__).resolve().parents[1]
-POSTS_DIR = ROOT / "_posts" / "mazesec记录"
+POSTS_DIR = ROOT / "_posts" / "mazesec"
 API_BASE = "http://127.0.0.1:6808"
 NOTEBOOK_ID = "20250702222801-kitbre8"
 AUTH_HEADER = "Basic cm9vdDoxMjM0NTY="
