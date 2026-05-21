@@ -10,65 +10,65 @@
             "title": "时间线",
             "note_root": "./_posts/LEA/",
             "note_src": "./_posts/LEA/Timeline.md",
-            "date": "2026-05-21T21:58:45+08:00"
+            "date": "2026-05-21T22:07:36+08:00"
         }
     ],
     "notes": {
-        "group": [
+        "mazesec记录": [
             {
                 "title": "BlindSpot-Ahiz",
                 "slug": "BlindSpot-Ahiz",
-                "note_root": "./_posts/group/BlindSpot-Ahiz/",
-                "note_src": "./_posts/group/BlindSpot-Ahiz/BlindSpot-Ahiz.md",
+                "note_root": "./_posts/mazesec记录/BlindSpot-Ahiz/",
+                "note_src": "./_posts/mazesec记录/BlindSpot-Ahiz/BlindSpot-Ahiz.md",
                 "date": "2026-05-18T20:25:11+08:00"
             },
             {
                 "title": "ecbw-Ahiz",
                 "slug": "ecbw-Ahiz",
-                "note_root": "./_posts/group/ecbw-Ahiz/",
-                "note_src": "./_posts/group/ecbw-Ahiz/ecbw-Ahiz.md",
+                "note_root": "./_posts/mazesec记录/ecbw-Ahiz/",
+                "note_src": "./_posts/mazesec记录/ecbw-Ahiz/ecbw-Ahiz.md",
                 "date": "2026-05-18T13:43:54+08:00"
             },
             {
                 "title": "meltdown2",
                 "slug": "meltdown2",
-                "note_root": "./_posts/group/meltdown2/",
-                "note_src": "./_posts/group/meltdown2/meltdown2.md",
+                "note_root": "./_posts/mazesec记录/meltdown2/",
+                "note_src": "./_posts/mazesec记录/meltdown2/meltdown2.md",
                 "date": "2026-05-17T10:48:35+08:00"
             },
             {
                 "title": "Local",
                 "slug": "Local",
-                "note_root": "./_posts/group/Local/",
-                "note_src": "./_posts/group/Local/Local.md",
+                "note_root": "./_posts/mazesec记录/Local/",
+                "note_src": "./_posts/mazesec记录/Local/Local.md",
                 "date": "2026-05-14T15:18:53+08:00"
             },
             {
                 "title": "Acfun",
                 "slug": "Acfun",
-                "note_root": "./_posts/group/Acfun/",
-                "note_src": "./_posts/group/Acfun/Acfun.md",
+                "note_root": "./_posts/mazesec记录/Acfun/",
+                "note_src": "./_posts/mazesec记录/Acfun/Acfun.md",
                 "date": "2026-04-27T13:50:57+08:00"
             },
             {
                 "title": "Show",
                 "slug": "Show",
-                "note_root": "./_posts/group/Show/",
-                "note_src": "./_posts/group/Show/Show.md",
+                "note_root": "./_posts/mazesec记录/Show/",
+                "note_src": "./_posts/mazesec记录/Show/Show.md",
                 "date": "2026-04-27T13:22:08+08:00"
             },
             {
                 "title": "SDL",
                 "slug": "SDL",
-                "note_root": "./_posts/group/SDL/",
-                "note_src": "./_posts/group/SDL/SDL.md",
+                "note_root": "./_posts/mazesec记录/SDL/",
+                "note_src": "./_posts/mazesec记录/SDL/SDL.md",
                 "date": "2026-04-26T17:22:34+08:00"
             },
             {
                 "title": "group",
                 "slug": "group",
-                "note_root": "./_posts/group/group/",
-                "note_src": "./_posts/group/group/group.md",
+                "note_root": "./_posts/mazesec记录/group/",
+                "note_src": "./_posts/mazesec记录/group/group.md",
                 "date": "2026-04-19T15:57:54+08:00"
             }
         ]
