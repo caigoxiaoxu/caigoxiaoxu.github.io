@@ -33,7 +33,7 @@ lastmod: 2026-05-08T00:00:00+08:00
 <footer class="home-footer">
 <div class="home-footer-copy">
 <span class="home-footer-kicker">持续更新中</span>
-<p class="home-footer-title">某人：八千里路云和月</p>
+<p class="home-footer-title">香软小糖宝imLZH1</p>
 </div>
 <nav class="home-footer-links" aria-label="Footer links">
 <a href="#/timeline">时间线</a>
