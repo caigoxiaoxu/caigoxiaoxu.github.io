@@ -20,6 +20,7 @@ POSTS_DIR = ROOT / "_posts"
 THEME_PATH = ROOT / "theme-custom.css"
 INDEX_PATH = ROOT / "index.html"
 APP_PATH = ROOT / "app.js"
+FRIENDS_ASSET_DIRNAME = "assets/friends"
 CACHE_VERSION_PATTERN = re.compile(r"202\d{5}-\d+")
 ASSET_LINK_PATTERN = re.compile(r"!\[[^\]]*]\(([^)]+)\)|<img[^>]+src=[\"']([^\"']+)[\"']", re.IGNORECASE)
 HOME_KICKER_PATTERN = re.compile(
@@ -28,6 +29,14 @@ HOME_KICKER_PATTERN = re.compile(
 )
 HOME_TITLE_PATTERN = re.compile(
     r'(<p\s+class=["\']home-footer-title["\']\s*>)([\s\S]*?)(</p>)',
+    re.IGNORECASE,
+)
+FRIEND_CARD_PATTERN = re.compile(
+    r'<a\s+href=["\'](?P<link>[^"\']+)["\']\s+class=["\']friend-card["\'][^>]*>'
+    r'[\s\S]*?<img\s+src=["\'](?P<avatar>[^"\']*)["\'][^>]*>'
+    r'[\s\S]*?<strong\s+class=["\']friend-name["\']>(?P<name>[\s\S]*?)</strong>'
+    r'[\s\S]*?<span\s+class=["\']friend-meta["\']>(?P<description>[\s\S]*?)</span>'
+    r'[\s\S]*?</a>',
     re.IGNORECASE,
 )
 CATEGORY_ALIASES = {
@@ -162,6 +171,10 @@ def write_text(path: Path, text: str) -> None:
 
 def home_index_path() -> Path:
     return POSTS_DIR / "LEA" / "index.md"
+
+
+def friends_path() -> Path:
+    return POSTS_DIR / "LEA" / "Friends.md"
 
 
 def remove_frontmatter(markdown: str) -> str:
@@ -351,6 +364,133 @@ def update_home_footer_text(
     return bump_asset_version()
 
 
+def split_markdown_frontmatter(markdown: str) -> tuple[str, str]:
+    text = markdown.lstrip("\ufeff\r\n")
+    match = re.match(r"^---\r?\n[\s\S]*?\r?\n---\r?\n?", text)
+    if not match:
+        return "", text
+    return match.group(0).rstrip() + "\n", text[match.end() :].lstrip("\n")
+
+
+def normalize_avatar_path(avatar: str) -> str:
+    value = avatar.strip()
+    if not value:
+        return ""
+    if re.match(r"^(?:https?:)?//", value, re.IGNORECASE) or value.startswith(("data:", "/")):
+        return value
+
+    source = Path(value)
+    if not source.exists():
+        return value.replace("\\", "/")
+
+    target_dir = friends_path().parent / FRIENDS_ASSET_DIRNAME
+    target_dir.mkdir(parents=True, exist_ok=True)
+    target = target_dir / safe_name(source.name)
+    shutil.copy2(source, target)
+    return f"{FRIENDS_ASSET_DIRNAME}/{target.name}".replace("\\", "/")
+
+
+def parse_friends() -> list[dict[str, str]]:
+    path = friends_path()
+    if not path.exists():
+        return []
+    _frontmatter, body = split_markdown_frontmatter(path.read_text(encoding="utf-8"))
+    friends = []
+    for match in FRIEND_CARD_PATTERN.finditer(body):
+        friends.append(
+            {
+                "name": html.unescape(match.group("name").strip()),
+                "link": html.unescape(match.group("link").strip()),
+                "description": html.unescape(match.group("description").strip()),
+                "avatar": html.unescape(match.group("avatar").strip()),
+            }
+        )
+    return friends
+
+
+def render_friends_markdown(friends: list[dict[str, str]]) -> str:
+    frontmatter = textwrap.dedent(
+        """\
+        ---
+        title: Friends
+        date: 2026-04-24T14:05:00+08:00
+        lastmod: 2026-04-24T14:05:00+08:00
+        ---
+        """
+    )
+    lines = [
+        frontmatter.rstrip(),
+        "",
+        "# Friends",
+        "",
+        '<p class="friends-page-intro">记录一些朋友和常看的博客。</p>',
+        "",
+        '<div class="friends-grid">',
+    ]
+    for friend in friends:
+        name = html.escape(friend["name"], quote=True)
+        link = html.escape(friend["link"], quote=True)
+        description = html.escape(friend["description"], quote=False)
+        avatar = html.escape(friend["avatar"], quote=True)
+        lines.extend(
+            [
+                f'  <a href="{link}" class="friend-card" target="_blank" rel="noreferrer">',
+                f'    <img src="{avatar}" alt="{name}" class="friend-avatar">',
+                '    <div class="friend-card-body">',
+                f'      <strong class="friend-name">{name}</strong>',
+                f'      <span class="friend-meta">{description}</span>',
+                '    </div>',
+                '  </a>',
+                "",
+            ]
+        )
+    lines.append("</div>")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def upsert_friend(
+    *,
+    name: str,
+    link: str,
+    description: str,
+    avatar: str,
+    overwrite: bool,
+) -> str:
+    clean_name = name.strip()
+    clean_link = link.strip()
+    if not clean_name:
+        raise ValueError("请输入友链名称")
+    if not clean_link:
+        raise ValueError("请输入友链链接")
+
+    clean_friend = {
+        "name": clean_name,
+        "link": clean_link,
+        "description": description.strip(),
+        "avatar": normalize_avatar_path(avatar),
+    }
+    friends = parse_friends()
+    match_index = next(
+        (
+            index
+            for index, friend in enumerate(friends)
+            if friend["name"].casefold() == clean_name.casefold()
+            or friend["link"].rstrip("/") == clean_link.rstrip("/")
+        ),
+        None,
+    )
+    if match_index is not None:
+        if not overwrite:
+            raise FileExistsError("已存在同名或同链接友链，请勾选覆盖")
+        friends[match_index] = clean_friend
+    else:
+        friends.append(clean_friend)
+
+    write_text(friends_path(), render_friends_markdown(friends))
+    return bump_asset_version()
+
+
 def import_article(
     source: Path,
     category: str,
@@ -503,6 +643,11 @@ class BlogManager(Tk):
         self.home_text_var = StringVar(value=home_title)
         self.home_mode_var = StringVar(value="overwrite")
         self.home_separator_var = StringVar(value=" · ")
+        self.friend_name_var = StringVar()
+        self.friend_link_var = StringVar()
+        self.friend_description_var = StringVar()
+        self.friend_avatar_var = StringVar()
+        self.friend_overwrite_var = BooleanVar(value=True)
         self.commit_var = StringVar(value="update blog")
 
         self.output = None
@@ -515,15 +660,18 @@ class BlogManager(Tk):
         import_tab = ttk.Frame(notebook, padding=14)
         theme_tab = ttk.Frame(notebook, padding=14)
         home_tab = ttk.Frame(notebook, padding=14)
+        friends_tab = ttk.Frame(notebook, padding=14)
         git_tab = ttk.Frame(notebook, padding=14)
         notebook.add(import_tab, text="文章导入")
         notebook.add(theme_tab, text="外观设置")
         notebook.add(home_tab, text="首页文案")
+        notebook.add(friends_tab, text="友链管理")
         notebook.add(git_tab, text="Git 上传")
 
         self.build_import_tab(import_tab)
         self.build_theme_tab(theme_tab)
         self.build_home_tab(home_tab)
+        self.build_friends_tab(friends_tab)
         self.build_git_tab(git_tab)
         self.output = self.add_output(self)
 
@@ -599,6 +747,29 @@ class BlogManager(Tk):
         ttk.Button(buttons, text="刷新当前文案", command=self.refresh_home_text).pack(side=LEFT)
         ttk.Button(buttons, text="应用首页文案", command=self.apply_home_text).pack(side=LEFT, padx=8)
 
+    def build_friends_tab(self, parent: ttk.Frame) -> None:
+        self.add_labeled_entry(parent, "名称", self.friend_name_var)
+        self.add_labeled_entry(parent, "链接", self.friend_link_var)
+        self.add_labeled_entry(parent, "描述", self.friend_description_var)
+
+        avatar_row = ttk.Frame(parent)
+        avatar_row.pack(fill=X, pady=6)
+        ttk.Label(avatar_row, text="头像", width=12).pack(side=LEFT)
+        ttk.Entry(avatar_row, textvariable=self.friend_avatar_var).pack(side=LEFT, fill=X, expand=True)
+        ttk.Button(avatar_row, text="本地头像", command=self.browse_friend_avatar).pack(side=RIGHT, padx=(8, 0))
+
+        ttk.Checkbutton(parent, text="存在同名/同链接时覆盖", variable=self.friend_overwrite_var).pack(anchor="w", pady=8)
+        ttk.Label(
+            parent,
+            text="头像可以填远程 URL，也可以选择本地图片；本地图片会复制到 _posts/LEA/assets/friends/。",
+            wraplength=660,
+            foreground="#64748b",
+        ).pack(fill=X, pady=(4, 12))
+
+        buttons = ttk.Frame(parent)
+        buttons.pack(fill=X, pady=6)
+        ttk.Button(buttons, text="添加/更新友链", command=self.apply_friend).pack(side=LEFT)
+
     def build_git_tab(self, parent: ttk.Frame) -> None:
         self.add_labeled_entry(parent, "提交信息", self.commit_var)
         buttons = ttk.Frame(parent)
@@ -652,6 +823,14 @@ class BlogManager(Tk):
         except OSError:
             pass
 
+    def browse_friend_avatar(self) -> None:
+        path = filedialog.askopenfilename(
+            title="选择头像图片",
+            filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif *.webp *.svg"), ("All files", "*.*")],
+        )
+        if path:
+            self.friend_avatar_var.set(path)
+
     def import_current_article(self) -> None:
         try:
             source = Path(self.source_var.get().strip())
@@ -704,6 +883,22 @@ class BlogManager(Tk):
         except Exception as exc:
             self.log(f"更新首页文案失败：{exc}")
             messagebox.showerror("更新首页文案失败", str(exc))
+
+    def apply_friend(self) -> None:
+        try:
+            version = upsert_friend(
+                name=self.friend_name_var.get(),
+                link=self.friend_link_var.get(),
+                description=self.friend_description_var.get(),
+                avatar=self.friend_avatar_var.get(),
+                overwrite=self.friend_overwrite_var.get(),
+            )
+            self.log(f"已添加/更新友链：{self.friend_name_var.get().strip()}")
+            self.log(f"资源版本已更新为：{version}")
+            messagebox.showinfo("完成", "友链已更新，缓存版本也已更新")
+        except Exception as exc:
+            self.log(f"更新友链失败：{exc}")
+            messagebox.showerror("更新友链失败", str(exc))
 
     def run_command(self, args: list[str]) -> subprocess.CompletedProcess[str]:
         result = subprocess.run(
