@@ -21,7 +21,7 @@ lastmod: 2026-04-24T14:05:00+08:00
     <img src="assets/friends/imLZH1.png" alt="imLZH1" class="friend-avatar">
     <div class="friend-card-body">
       <strong class="friend-name">imLZH1</strong>
-      <span class="friend-meta">Personal blog</span>
+      <span class="friend-meta">?????????????</span>
     </div>
   </a>
 
