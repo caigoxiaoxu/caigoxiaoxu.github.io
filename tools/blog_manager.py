@@ -16,6 +16,13 @@ from tkinter import ttk
 ROOT = Path(__file__).resolve().parents[1]
 POSTS_DIR = ROOT / "_posts"
 THEME_PATH = ROOT / "theme-custom.css"
+INDEX_PATH = ROOT / "index.html"
+APP_PATH = ROOT / "app.js"
+CACHE_VERSION_PATTERN = re.compile(r"202\d{5}-\d+")
+ASSET_LINK_PATTERN = re.compile(r"!\[[^\]]*]\(([^)]+)\)|<img[^>]+src=[\"']([^\"']+)[\"']", re.IGNORECASE)
+CATEGORY_ALIASES = {
+    "mazesec记录": "mazesec",
+}
 
 THEME_PRESETS = {
     "紫粉默认": {
@@ -109,10 +116,29 @@ def now_iso() -> str:
 
 def safe_name(value: str) -> str:
     value = value.strip()
+    value = value.removesuffix(".md")
     value = re.sub(r'[<>:"/\\|?*\x00-\x1f]+', "-", value)
     value = re.sub(r"\s+", "-", value)
     value = value.strip(" .-")
     return value or "untitled"
+
+
+def normalize_category(value: str) -> str:
+    category = value.strip() or "其他靶场"
+    return CATEGORY_ALIASES.get(category, category)
+
+
+def guess_article_name(path: Path) -> str:
+    name = path.stem
+    return name.removesuffix(".md")
+
+
+def ensure_within(base: Path, target: Path) -> Path:
+    base_resolved = base.resolve()
+    target_resolved = target.resolve()
+    if target_resolved != base_resolved and base_resolved not in target_resolved.parents:
+        raise ValueError(f"路径越界：{target}")
+    return target_resolved
 
 
 def read_text(path: Path) -> str:
@@ -156,18 +182,57 @@ def find_markdown_file(root: Path) -> Path:
     return candidates[0]
 
 
-def copy_article_assets(source_md: Path, destination_dir: Path) -> None:
-    source_parent = source_md.parent
-    for item in source_parent.iterdir():
-        if item == source_md:
+def safe_extract_zip(zip_path: Path, destination: Path) -> None:
+    destination.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(zip_path) as archive:
+        for member in archive.infolist():
+            target = ensure_within(destination, destination / member.filename)
+            if member.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+                continue
+
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(member) as source_file, target.open("wb") as target_file:
+                shutil.copyfileobj(source_file, target_file)
+
+
+def referenced_asset_paths(markdown: str) -> set[str]:
+    assets: set[str] = set()
+    for match in ASSET_LINK_PATTERN.finditer(markdown):
+        raw = match.group(1) or match.group(2) or ""
+        raw = raw.strip().split()[0].strip("<>\"'")
+        if not raw or raw.startswith(("#", "/", "http://", "https://", "data:", "mailto:")):
             continue
-        target = destination_dir / item.name
-        if item.is_dir():
-            if target.exists():
-                shutil.rmtree(target)
-            shutil.copytree(item, target)
-        elif item.is_file():
-            shutil.copy2(item, target)
+        assets.add(raw.replace("\\", "/"))
+    return assets
+
+
+def copy_asset_path(source_parent: Path, destination_dir: Path, relative_path: str) -> None:
+    source = (source_parent / relative_path).resolve()
+    if not source.exists():
+        return
+    ensure_within(source_parent, source)
+
+    target = ensure_within(destination_dir, destination_dir / relative_path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if source.is_dir():
+        if target.exists():
+            shutil.rmtree(target)
+        shutil.copytree(source, target)
+    else:
+        shutil.copy2(source, target)
+
+
+def copy_article_assets(source_md: Path, destination_dir: Path, markdown: str) -> None:
+    source_parent = source_md.parent
+    referenced = referenced_asset_paths(markdown)
+
+    for relative_path in sorted(referenced):
+        copy_asset_path(source_parent, destination_dir, relative_path)
+
+    assets_dir = source_parent / "assets"
+    if assets_dir.exists():
+        copy_asset_path(source_parent, destination_dir, "assets")
 
 
 def run_main_py() -> str:
@@ -184,6 +249,38 @@ def run_main_py() -> str:
     return output.strip() or "nav.json 和时间线已更新"
 
 
+def current_cache_version() -> str:
+    app_text = APP_PATH.read_text(encoding="utf-8")
+    match = re.search(r"assetVersion\s*=\s*['\"]([^'\"]+)['\"]", app_text)
+    if match:
+        return match.group(1)
+
+    index_text = INDEX_PATH.read_text(encoding="utf-8")
+    match = CACHE_VERSION_PATTERN.search(index_text)
+    return match.group(0) if match else f"{datetime.now():%Y%m%d}-0"
+
+
+def next_cache_version() -> str:
+    current = current_cache_version()
+    today = datetime.now().strftime("%Y%m%d")
+    match = re.match(r"^(\d{8})-(\d+)$", current)
+    if not match or match.group(1) != today:
+        return f"{today}-1"
+    return f"{today}-{int(match.group(2)) + 1}"
+
+
+def bump_asset_version() -> str:
+    old_version = current_cache_version()
+    new_version = next_cache_version()
+
+    for path in (INDEX_PATH, APP_PATH):
+        text = path.read_text(encoding="utf-8")
+        text = text.replace(old_version, new_version)
+        write_text(path, text)
+
+    return new_version
+
+
 def import_article(
     source: Path,
     category: str,
@@ -192,38 +289,41 @@ def import_article(
     date_value: str,
     overwrite: bool,
 ) -> Path:
-    category_name = safe_name(category)
-    slug_name = safe_name(slug or title or source.stem)
+    category_name = safe_name(normalize_category(category))
+    slug_name = safe_name(slug or title or guess_article_name(source))
     destination_dir = POSTS_DIR / category_name / slug_name
     destination_md = destination_dir / f"{slug_name}.md"
 
     if destination_dir.exists() and not overwrite:
         raise FileExistsError(f"文章目录已存在：{destination_dir}")
 
+    if destination_dir.exists() and overwrite:
+        ensure_within(POSTS_DIR, destination_dir)
+        shutil.rmtree(destination_dir)
     destination_dir.mkdir(parents=True, exist_ok=True)
 
     if source.suffix.lower() == ".zip":
         with tempfile.TemporaryDirectory(prefix="blog-import-") as temp_dir:
             temp_root = Path(temp_dir)
-            with zipfile.ZipFile(source) as archive:
-                archive.extractall(temp_root)
+            safe_extract_zip(source, temp_root)
             source_md = find_markdown_file(temp_root)
             markdown = read_text(source_md)
-            copy_article_assets(source_md, destination_dir)
+            copy_article_assets(source_md, destination_dir, markdown)
     elif source.suffix.lower() == ".md":
         source_md = source
         markdown = read_text(source_md)
-        copy_article_assets(source_md, destination_dir)
+        copy_article_assets(source_md, destination_dir, markdown)
     else:
         raise ValueError("请选择 .zip 或 .md 文件")
 
     final_title = title.strip() or source_md.stem
     write_text(destination_md, with_frontmatter(markdown, final_title, date_value))
     run_main_py()
+    bump_asset_version()
     return destination_md
 
 
-def write_theme_preset(name: str) -> None:
+def write_theme_preset(name: str) -> str:
     preset = THEME_PRESETS[name]
     root_vars = {
         **preset.get("extra_root", {}),
@@ -253,6 +353,17 @@ def write_theme_preset(name: str) -> None:
         "}\n"
     )
     write_text(THEME_PATH, css)
+    return bump_asset_version()
+
+
+def existing_categories() -> list[str]:
+    categories = []
+    if POSTS_DIR.exists():
+        categories = sorted(
+            path.name for path in POSTS_DIR.iterdir() if path.is_dir() and path.name != "LEA"
+        )
+    defaults = ["其他靶场", "mazesec"]
+    return list(dict.fromkeys([*defaults, *categories]))
 
 
 class BlogManager(Tk):
@@ -268,7 +379,7 @@ class BlogManager(Tk):
         self.slug_var = StringVar()
         self.date_var = StringVar(value=now_iso())
         self.overwrite_var = BooleanVar(value=False)
-        self.theme_var = StringVar(value="紫粉默认")
+        self.theme_var = StringVar(value="蓝灰克制")
         self.commit_var = StringVar(value="update blog")
 
         self.output = None
@@ -305,7 +416,14 @@ class BlogManager(Tk):
         ttk.Entry(source_row, textvariable=self.source_var).pack(side=LEFT, fill=X, expand=True)
         ttk.Button(source_row, text="选择", command=self.browse_source).pack(side=RIGHT, padx=(8, 0))
 
-        self.add_labeled_entry(parent, "分类", self.category_var)
+        category_row = ttk.Frame(parent)
+        category_row.pack(fill=X, pady=6)
+        ttk.Label(category_row, text="分类", width=12).pack(side=LEFT)
+        ttk.Combobox(category_row, textvariable=self.category_var, values=existing_categories()).pack(
+            side=LEFT,
+            fill=X,
+            expand=True,
+        )
         self.add_labeled_entry(parent, "标题", self.title_var)
         self.add_labeled_entry(parent, "目录名", self.slug_var)
         self.add_labeled_entry(parent, "发布时间", self.date_var)
@@ -375,7 +493,7 @@ class BlogManager(Tk):
             return
         source = Path(path)
         self.source_var.set(str(source))
-        guessed = source.stem.removesuffix(".md")
+        guessed = guess_article_name(source)
         if not self.title_var.get().strip():
             self.title_var.set(guessed)
         if not self.slug_var.get().strip():
@@ -400,22 +518,32 @@ class BlogManager(Tk):
                 overwrite=self.overwrite_var.get(),
             )
             self.log(f"导入成功：{imported}")
-            messagebox.showinfo("完成", "文章已导入，并已更新 nav.json / Timeline.md")
+            self.log(f"资源版本已更新为：{current_cache_version()}")
+            messagebox.showinfo("完成", "文章已导入，导航和缓存版本已更新")
         except Exception as exc:
             self.log(f"导入失败：{exc}")
             messagebox.showerror("导入失败", str(exc))
 
     def apply_theme(self) -> None:
         try:
-            write_theme_preset(self.theme_var.get())
+            version = write_theme_preset(self.theme_var.get())
             self.log(f"已应用主题：{self.theme_var.get()}")
-            messagebox.showinfo("完成", "外观设置已写入 theme-custom.css")
+            self.log(f"资源版本已更新为：{version}")
+            messagebox.showinfo("完成", "外观设置已写入，缓存版本也已更新")
         except Exception as exc:
             self.log(f"应用主题失败：{exc}")
             messagebox.showerror("应用主题失败", str(exc))
 
     def run_command(self, args: list[str]) -> subprocess.CompletedProcess[str]:
-        result = subprocess.run(args, cwd=ROOT, text=True, capture_output=True, check=False)
+        result = subprocess.run(
+            args,
+            cwd=ROOT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            check=False,
+        )
         output = (result.stdout or "") + (result.stderr or "")
         if output.strip():
             self.log(output)
@@ -428,6 +556,28 @@ class BlogManager(Tk):
     def commit_and_push(self) -> None:
         try:
             message = self.commit_var.get().strip() or "update blog"
+            status = subprocess.run(
+                ["git", "status", "--short"],
+                cwd=ROOT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                capture_output=True,
+                check=False,
+            )
+            status_text = status.stdout.strip()
+            if not status_text:
+                messagebox.showinfo("没有改动", "当前没有需要提交的改动。")
+                return
+
+            confirmed = messagebox.askyesno(
+                "确认提交",
+                f"将提交并推送以下改动：\n\n{status_text}\n\n继续吗？",
+            )
+            if not confirmed:
+                self.log("已取消提交。")
+                return
+
             self.log("$ git add .")
             add_result = self.run_command(["git", "add", "."])
             if add_result.returncode != 0:
