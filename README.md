@@ -87,6 +87,21 @@ python -m http.server 8000
 http://127.0.0.1:8000/#/overview
 ```
 
+## 图形化管理工具
+
+项目内置一个本地管理窗口，可以导入思源导出的 `.md.zip` 或单个 Markdown，自动复制 `assets`、补齐 frontmatter、更新 `nav.json` 和时间线，也可以切换主题色并执行 Git 上传。
+
+```bash
+python tools/blog_manager.py
+```
+
+常用流程：
+
+```text
+文章导入 -> 选择 .zip/.md -> 填分类和标题 -> 导入文章并更新导航
+Git 上传 -> 填提交信息 -> 提交并推送
+```
+
 ## 部署到 GitHub Pages
 
 推荐使用 GitHub Actions 自动部署：
