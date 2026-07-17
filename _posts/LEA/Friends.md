@@ -26,7 +26,7 @@ lastmod: 2026-04-24T14:05:00+08:00
   </a>
 
   <a href="https://space.bilibili.com/20805349?spm_id_from=333.1387.follow.user_card.click" class="friend-card" target="_blank" rel="noreferrer">
-    <img src="assets/friends/ll104567.svg" alt="ll104567" class="friend-avatar">
+    <img src="assets/friends/ll104567.jpg" alt="ll104567" class="friend-avatar">
     <div class="friend-card-body">
       <strong class="friend-name">ll104567</strong>
       <span class="friend-meta">mazesec群主详细的视频教学</span>
