@@ -1,7 +1,7 @@
 ---
 title: 时间线
-date: 2026-07-17T15:15:02+08:00
-lastmod: 2026-07-17T15:15:02+08:00
+date: 2026-07-17T15:25:42+08:00
+lastmod: 2026-07-17T15:25:42+08:00
 ---
 
 # 时间线
@@ -9,9 +9,17 @@ lastmod: 2026-07-17T15:15:02+08:00
 <p class="timeline-page-intro">按时间顺序整理站内文章，方便快速回看近期写了什么、补了什么、记录了什么。</p>
 
 <div class="timeline-simple-list">
-  <a class="timeline-simple-item" href="#/mazesec记录/IR1-Ahiz">
+  <a class="timeline-simple-item" href="#/mazesec/tamper-Ahiz">
+    <span class="timeline-simple-date">2026.07.17</span>
+    <strong class="timeline-simple-title">tamper-Ahiz</strong>
+  </a>
+  <a class="timeline-simple-item" href="#/mazesec/IR1-Ahiz">
     <span class="timeline-simple-date">2026.07.17</span>
     <strong class="timeline-simple-title">IR1-Ahiz</strong>
+  </a>
+  <a class="timeline-simple-item" href="#/mazesec/relax_Ahiz">
+    <span class="timeline-simple-date">2026.07.17</span>
+    <strong class="timeline-simple-title">relax_Ahiz</strong>
   </a>
   <a class="timeline-simple-item" href="#/其他靶场/无境靶场Soupedecode-01-thm">
     <span class="timeline-simple-date">2026.07.17</span>
