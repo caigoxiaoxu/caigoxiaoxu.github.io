@@ -33,7 +33,7 @@ lastmod: 2026-05-08T00:00:00+08:00
 <footer class="home-footer">
 <div class="home-footer-copy">
 <span class="home-footer-kicker">持续更新中</span>
-<p class="home-footer-title">香软小糖宝imLZH1 · 吴卓的主人</p>
+<p class="home-footer-title">香软小糖宝imLZH1  ·  三角洲第一战犯</p>
 </div>
 <nav class="home-footer-links" aria-label="Footer links">
 <a href="#/timeline">时间线</a>
