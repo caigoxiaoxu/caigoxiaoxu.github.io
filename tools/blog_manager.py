@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import re
 import shutil
 import subprocess
@@ -20,6 +21,14 @@ INDEX_PATH = ROOT / "index.html"
 APP_PATH = ROOT / "app.js"
 CACHE_VERSION_PATTERN = re.compile(r"202\d{5}-\d+")
 ASSET_LINK_PATTERN = re.compile(r"!\[[^\]]*]\(([^)]+)\)|<img[^>]+src=[\"']([^\"']+)[\"']", re.IGNORECASE)
+HOME_KICKER_PATTERN = re.compile(
+    r'(<span\s+class=["\']home-footer-kicker["\']\s*>)([\s\S]*?)(</span>)',
+    re.IGNORECASE,
+)
+HOME_TITLE_PATTERN = re.compile(
+    r'(<p\s+class=["\']home-footer-title["\']\s*>)([\s\S]*?)(</p>)',
+    re.IGNORECASE,
+)
 CATEGORY_ALIASES = {
     "mazesec记录": "mazesec",
 }
@@ -147,6 +156,10 @@ def read_text(path: Path) -> str:
 
 def write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
+
+
+def home_index_path() -> Path:
+    return POSTS_DIR / "LEA" / "index.md"
 
 
 def remove_frontmatter(markdown: str) -> str:
@@ -281,6 +294,61 @@ def bump_asset_version() -> str:
     return new_version
 
 
+def get_home_footer_text() -> tuple[str, str]:
+    path = home_index_path()
+    if not path.exists():
+        return "", ""
+
+    text = path.read_text(encoding="utf-8")
+    kicker_match = HOME_KICKER_PATTERN.search(text)
+    title_match = HOME_TITLE_PATTERN.search(text)
+    kicker = html.unescape(kicker_match.group(2).strip()) if kicker_match else ""
+    title = html.unescape(title_match.group(2).strip()) if title_match else ""
+    return kicker, title
+
+
+def update_home_footer_text(
+    *,
+    kicker: str,
+    title: str,
+    mode: str,
+    separator: str = " · ",
+) -> str:
+    path = home_index_path()
+    if not path.exists():
+        raise FileNotFoundError(f"首页文件不存在：{path}")
+
+    text = path.read_text(encoding="utf-8")
+    if not HOME_TITLE_PATTERN.search(text):
+        raise ValueError("没有找到 home-footer-title，无法更新首页文案")
+
+    current_kicker, current_title = get_home_footer_text()
+    next_title = title.strip()
+    if not next_title:
+        raise ValueError("请输入首页文案")
+
+    normalized_mode = mode.strip().lower()
+    if normalized_mode in {"添加", "add", "append"}:
+        if current_title and next_title in current_title:
+            final_title = current_title
+        elif current_title:
+            final_title = f"{current_title}{separator}{next_title}"
+        else:
+            final_title = next_title
+    else:
+        final_title = next_title
+
+    final_kicker = kicker.strip() or current_kicker
+    escaped_title = html.escape(final_title, quote=False)
+    escaped_kicker = html.escape(final_kicker, quote=False)
+
+    if final_kicker and HOME_KICKER_PATTERN.search(text):
+        text = HOME_KICKER_PATTERN.sub(rf"\1{escaped_kicker}\3", text, count=1)
+    text = HOME_TITLE_PATTERN.sub(rf"\1{escaped_title}\3", text, count=1)
+    write_text(path, text)
+    return bump_asset_version()
+
+
 def import_article(
     source: Path,
     category: str,
@@ -380,6 +448,11 @@ class BlogManager(Tk):
         self.date_var = StringVar(value=now_iso())
         self.overwrite_var = BooleanVar(value=False)
         self.theme_var = StringVar(value="蓝灰克制")
+        home_kicker, home_title = get_home_footer_text()
+        self.home_kicker_var = StringVar(value=home_kicker or "持续更新中")
+        self.home_text_var = StringVar(value=home_title)
+        self.home_mode_var = StringVar(value="overwrite")
+        self.home_separator_var = StringVar(value=" · ")
         self.commit_var = StringVar(value="update blog")
 
         self.output = None
@@ -391,13 +464,16 @@ class BlogManager(Tk):
 
         import_tab = ttk.Frame(notebook, padding=14)
         theme_tab = ttk.Frame(notebook, padding=14)
+        home_tab = ttk.Frame(notebook, padding=14)
         git_tab = ttk.Frame(notebook, padding=14)
         notebook.add(import_tab, text="文章导入")
         notebook.add(theme_tab, text="外观设置")
+        notebook.add(home_tab, text="首页文案")
         notebook.add(git_tab, text="Git 上传")
 
         self.build_import_tab(import_tab)
         self.build_theme_tab(theme_tab)
+        self.build_home_tab(home_tab)
         self.build_git_tab(git_tab)
         self.output = self.add_output(self)
 
@@ -445,11 +521,33 @@ class BlogManager(Tk):
 
         ttk.Label(
             parent,
-            text="这里会写入 theme-custom.css，只覆盖主题色，不会改坏主体布局。",
+            text="这里会写入 theme-custom.css，并自动更新缓存版本。",
             wraplength=660,
             foreground="#64748b",
         ).pack(fill=X, pady=(4, 12))
         ttk.Button(parent, text="应用外观设置", command=self.apply_theme).pack(anchor="w")
+
+    def build_home_tab(self, parent: ttk.Frame) -> None:
+        self.add_labeled_entry(parent, "小标题", self.home_kicker_var)
+        self.add_labeled_entry(parent, "文案", self.home_text_var)
+
+        mode_row = ttk.Frame(parent)
+        mode_row.pack(fill=X, pady=6)
+        ttk.Label(mode_row, text="模式", width=12).pack(side=LEFT)
+        ttk.Radiobutton(mode_row, text="覆盖", variable=self.home_mode_var, value="overwrite").pack(side=LEFT)
+        ttk.Radiobutton(mode_row, text="添加", variable=self.home_mode_var, value="append").pack(side=LEFT, padx=12)
+
+        self.add_labeled_entry(parent, "分隔符", self.home_separator_var)
+        ttk.Label(
+            parent,
+            text="覆盖会替换首页底部大字；添加会把新文案追加到现有文案后面，并自动更新缓存版本。",
+            wraplength=660,
+            foreground="#64748b",
+        ).pack(fill=X, pady=(4, 12))
+        buttons = ttk.Frame(parent)
+        buttons.pack(fill=X, pady=6)
+        ttk.Button(buttons, text="刷新当前文案", command=self.refresh_home_text).pack(side=LEFT)
+        ttk.Button(buttons, text="应用首页文案", command=self.apply_home_text).pack(side=LEFT, padx=8)
 
     def build_git_tab(self, parent: ttk.Frame) -> None:
         self.add_labeled_entry(parent, "提交信息", self.commit_var)
@@ -533,6 +631,29 @@ class BlogManager(Tk):
         except Exception as exc:
             self.log(f"应用主题失败：{exc}")
             messagebox.showerror("应用主题失败", str(exc))
+
+    def refresh_home_text(self) -> None:
+        kicker, title = get_home_footer_text()
+        self.home_kicker_var.set(kicker)
+        self.home_text_var.set(title)
+        self.log("已刷新首页文案。")
+
+    def apply_home_text(self) -> None:
+        try:
+            version = update_home_footer_text(
+                kicker=self.home_kicker_var.get(),
+                title=self.home_text_var.get(),
+                mode=self.home_mode_var.get(),
+                separator=self.home_separator_var.get() or " · ",
+            )
+            _kicker, title = get_home_footer_text()
+            self.home_text_var.set(title)
+            self.log(f"已更新首页文案：{title}")
+            self.log(f"资源版本已更新为：{version}")
+            messagebox.showinfo("完成", "首页文案已更新，缓存版本也已更新")
+        except Exception as exc:
+            self.log(f"更新首页文案失败：{exc}")
+            messagebox.showerror("更新首页文案失败", str(exc))
 
     def run_command(self, args: list[str]) -> subprocess.CompletedProcess[str]:
         result = subprocess.run(
