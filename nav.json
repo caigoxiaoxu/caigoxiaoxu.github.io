@@ -10,7 +10,7 @@
             "title": "时间线",
             "note_root": "./_posts/LEA/",
             "note_src": "./_posts/LEA/Timeline.md",
-            "date": "2026-07-17T16:47:48+08:00"
+            "date": "2026-07-17T16:49:50+08:00"
         },
         {
             "title": "Friends",
@@ -107,13 +107,6 @@
             }
         ],
         "其他靶场": [
-            {
-                "title": "Guess_Ahiz",
-                "slug": "Guess_Ahiz",
-                "note_root": "./_posts/其他靶场/Guess_Ahiz/",
-                "note_src": "./_posts/其他靶场/Guess_Ahiz/Guess_Ahiz.md",
-                "date": "2026-07-17T16:46:44+08:00"
-            },
             {
                 "title": "无境靶场Soupedecode-01-thm",
                 "slug": "无境靶场Soupedecode-01-thm",

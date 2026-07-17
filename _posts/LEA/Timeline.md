@@ -1,7 +1,7 @@
 ---
 title: 时间线
-date: 2026-07-17T16:47:48+08:00
-lastmod: 2026-07-17T16:47:48+08:00
+date: 2026-07-17T16:49:50+08:00
+lastmod: 2026-07-17T16:49:50+08:00
 ---
 
 # 时间线
@@ -10,10 +10,6 @@ lastmod: 2026-07-17T16:47:48+08:00
 
 <div class="timeline-simple-list">
   <a class="timeline-simple-item" href="#/mazesec/Guess_Ahiz">
-    <span class="timeline-simple-date">2026.07.17</span>
-    <strong class="timeline-simple-title">Guess_Ahiz</strong>
-  </a>
-  <a class="timeline-simple-item" href="#/其他靶场/Guess_Ahiz">
     <span class="timeline-simple-date">2026.07.17</span>
     <strong class="timeline-simple-title">Guess_Ahiz</strong>
   </a>
