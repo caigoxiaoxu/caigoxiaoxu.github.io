@@ -13,8 +13,8 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://caigoxiaoxu.github.io">
     <link rel="stylesheet" href="prism.css?v=20260717-1">
-    <link rel="stylesheet" href="styles.css?v=20260717-3">
-    <link rel="stylesheet" href="theme-custom.css?v=20260717-3">
+    <link rel="stylesheet" href="styles.css?v=20260717-4">
+    <link rel="stylesheet" href="theme-custom.css?v=20260717-4">
     <!-- Marked.js for Markdown parsing -->
     <script src="marked.min.js"></script>
     <!-- DOMPurify for security -->
@@ -123,7 +123,7 @@
             if (!copywritingElement) return;
 
             try {
-                const response = await fetch('./copywriting.json?v=20260717-3', { cache: 'no-cache' });
+                const response = await fetch('./copywriting.json?v=20260717-4', { cache: 'no-cache' });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
                 const copywriting = await response.json();
@@ -161,6 +161,6 @@
             }
         })();
     </script>
-    <script src="app.js?v=20260717-3"></script>
+    <script src="app.js?v=20260717-4"></script>
 </body>
 </html>
