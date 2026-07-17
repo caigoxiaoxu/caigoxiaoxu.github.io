@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tempfile
@@ -32,6 +33,7 @@ HOME_TITLE_PATTERN = re.compile(
 CATEGORY_ALIASES = {
     "mazesec记录": "mazesec",
 }
+LOCAL_PROXY_PATTERN = re.compile(r"^(?:https?://)?(?:127\.0\.0\.1|localhost):(\d+)", re.IGNORECASE)
 
 THEME_PRESETS = {
     "紫粉默认": {
@@ -434,6 +436,54 @@ def existing_categories() -> list[str]:
     return list(dict.fromkeys([*defaults, *categories]))
 
 
+def git_config_value(name: str) -> str:
+    result = subprocess.run(
+        ["git", "config", "--get", name],
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        capture_output=True,
+        check=False,
+    )
+    return result.stdout.strip() if result.returncode == 0 else ""
+
+
+def local_proxy_is_down(proxy: str) -> bool:
+    match = LOCAL_PROXY_PATTERN.match(proxy.strip())
+    if not match:
+        return False
+    port = int(match.group(1))
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.settimeout(0.6)
+        return sock.connect_ex(("127.0.0.1", port)) != 0
+
+
+def git_push_command() -> tuple[list[str], str | None]:
+    proxies = [
+        git_config_value("https.proxy"),
+        git_config_value("http.proxy"),
+    ]
+    if any(proxy and local_proxy_is_down(proxy) for proxy in proxies):
+        return (
+            ["git", "-c", "http.proxy=", "-c", "https.proxy=", "push", "origin", "main"],
+            "检测到本地 Git 代理端口不可用，本次 push 将临时绕过代理。",
+        )
+    return ["git", "push", "origin", "main"], None
+
+
+def push_failed_because_proxy(result: subprocess.CompletedProcess[str]) -> bool:
+    output = f"{result.stdout or ''}\n{result.stderr or ''}".lower()
+    proxy_markers = [
+        "127.0.0.1",
+        "localhost",
+        "proxy",
+        "could not connect to server",
+        "failed to connect",
+    ]
+    return result.returncode != 0 and any(marker in output for marker in proxy_markers)
+
+
 class BlogManager(Tk):
     def __init__(self) -> None:
         super().__init__()
@@ -712,8 +762,16 @@ class BlogManager(Tk):
                 else:
                     raise RuntimeError("git commit 失败")
 
-            self.log("$ git push origin main")
-            push_result = self.run_command(["git", "push", "origin", "main"])
+            push_command, proxy_note = git_push_command()
+            if proxy_note:
+                self.log(proxy_note)
+            self.log("$ " + " ".join(push_command))
+            push_result = self.run_command(push_command)
+            if push_failed_because_proxy(push_result) and push_command[1:5] != ["-c", "http.proxy=", "-c", "https.proxy="]:
+                retry_command = ["git", "-c", "http.proxy=", "-c", "https.proxy=", "push", "origin", "main"]
+                self.log("检测到代理连接失败，正在临时绕过代理重试 push。")
+                self.log("$ " + " ".join(retry_command))
+                push_result = self.run_command(retry_command)
             if push_result.returncode != 0:
                 raise RuntimeError("git push 失败")
             messagebox.showinfo("完成", "已推送到 GitHub，GitHub Pages 会自动部署。")
