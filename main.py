@@ -22,10 +22,10 @@ PAGE_DEFINITIONS = [
         "filename": "Timeline.md",
         "title": "时间线",
     },
-    #{
-    #    "filename": "Friends.md",
-    #    "title": "Friends",
-    #},
+    {
+        "filename": "Friends.md",
+        "title": "Friends",
+    },
 ]
 
 

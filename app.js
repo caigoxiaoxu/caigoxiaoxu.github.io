@@ -225,7 +225,7 @@ class ThemeManager {
 // 导航加载和文件管理
 class NavManager {
     constructor() {
-        this.assetVersion = '20260521-2';
+        this.assetVersion = '20260717-1';
         this.navData = { pages: [], notes: {} };
         this.entryMapBySrc = new Map();
         this.pageMap = new Map();
@@ -477,7 +477,6 @@ class NavManager {
         if (
             normalizedCategory === 'group'
             || normalizedCategory.includes('mazesec')
-            || normalizedCategory.includes('��')
             || noteRoot.includes('/mazesec/')
             || noteSrc.includes('/mazesec/')
         ) {
@@ -1220,7 +1219,7 @@ class NavManager {
         // 展开指定目录
         const categoryItems = document.querySelectorAll('.category-item');
         categoryItems.forEach(item => {
-            const categoryName = item.querySelector('.category-name').textContent;
+            const categoryName = item.dataset.category;
             if (categoryName === category) {
                 this.toggleCategory(item, true);
             }
