@@ -169,6 +169,11 @@ def write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
+def ensure_not_mojibake(value: str, field_name: str) -> None:
+    if re.search(r"\?{4,}", value):
+        raise ValueError(f"{field_name} 里出现连续问号，像是编码乱码；请重新输入中文后再保存")
+
+
 def home_index_path() -> Path:
     return POSTS_DIR / "LEA" / "index.md"
 
@@ -341,6 +346,8 @@ def update_home_footer_text(
     next_title = title.strip()
     if not next_title:
         raise ValueError("请输入首页文案")
+    ensure_not_mojibake(kicker, "首页小标题")
+    ensure_not_mojibake(next_title, "首页文案")
 
     normalized_mode = mode.strip().lower()
     if normalized_mode in {"添加", "add", "append"}:
@@ -463,6 +470,8 @@ def upsert_friend(
         raise ValueError("请输入友链名称")
     if not clean_link:
         raise ValueError("请输入友链链接")
+    ensure_not_mojibake(clean_name, "友链名称")
+    ensure_not_mojibake(description, "友链描述")
 
     clean_friend = {
         "name": clean_name,
