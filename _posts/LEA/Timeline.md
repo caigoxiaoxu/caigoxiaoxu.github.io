@@ -1,7 +1,7 @@
 ---
 title: 时间线
-date: 2026-07-17T16:49:50+08:00
-lastmod: 2026-07-17T16:49:50+08:00
+date: 2026-07-19T15:59:10+08:00
+lastmod: 2026-07-19T15:59:10+08:00
 ---
 
 # 时间线
@@ -9,6 +9,10 @@ lastmod: 2026-07-17T16:49:50+08:00
 <p class="timeline-page-intro">按时间顺序整理站内文章，方便快速回看近期写了什么、补了什么、记录了什么。</p>
 
 <div class="timeline-simple-list">
+  <a class="timeline-simple-item" href="#/mazesec/Guess2_Ahiz">
+    <span class="timeline-simple-date">2026.07.19</span>
+    <strong class="timeline-simple-title">Guess2_Ahiz</strong>
+  </a>
   <a class="timeline-simple-item" href="#/mazesec/Guess_Ahiz">
     <span class="timeline-simple-date">2026.07.17</span>
     <strong class="timeline-simple-title">Guess_Ahiz</strong>
