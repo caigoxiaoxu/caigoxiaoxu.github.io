@@ -225,7 +225,7 @@ class ThemeManager {
 // 导航加载和文件管理
 class NavManager {
     constructor() {
-        this.assetVersion = '20260719-1';
+        this.assetVersion = '20260722-1';
         this.navData = { pages: [], notes: {} };
         this.entryMapBySrc = new Map();
         this.pageMap = new Map();
